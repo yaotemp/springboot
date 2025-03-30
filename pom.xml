@@ -19,7 +19,7 @@
     
     <properties>
         <java.version>17</java.version>
-        <mysql.version>8.0.33</mysql.version>
+        <db2.version>11.5.8.0</db2.version>
         <springdoc.version>2.3.0</springdoc.version>
     </properties>
     
@@ -32,10 +32,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
+        <!-- DB2 for z/OS JDBC Driver -->
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql.version}</version>
+            <groupId>com.ibm.db2</groupId>
+            <artifactId>jcc</artifactId>
+            <version>${db2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>

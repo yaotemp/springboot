@@ -70,9 +70,14 @@ public class UserController {
         Map<String, Object> response = new HashMap<>();
         try {
             Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
+            
+            String dbVersion = jdbcTemplate.queryForObject(
+                "SELECT GETVARIABLE('SYSIBM.VERSION') FROM SYSIBM.SYSDUMMY1", String.class);
+            
             response.put("success", true);
             response.put("count", count);
-            response.put("message", "Database connection successful");
+            response.put("dbVersion", dbVersion);
+            response.put("message", "DB2 connection successful");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("success", false);

@@ -26,7 +26,7 @@ public class UserRepository {
 
     public List<User> findAll() {
         try {
-            String sql = "SELECT * FROM users LIMIT 100";
+            String sql = "SELECT * FROM users FETCH FIRST 100 ROWS ONLY";
             System.out.println("Executing SQL: " + sql);
             return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(User.class));
         } catch (Exception e) {
@@ -67,7 +67,12 @@ public class UserRepository {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(sql, params, keyHolder);
             
-            if (keyHolder.getKey() != null) {
+            if (keyHolder.getKey() == null) {
+                Long id = jdbcTemplate.queryForObject(
+                    "SELECT IDENTITY_VAL_LOCAL() FROM SYSIBM.SYSDUMMY1", 
+                    new MapSqlParameterSource(), Long.class);
+                user.setId(id);
+            } else {
                 user.setId(keyHolder.getKey().longValue());
             }
             return user;
