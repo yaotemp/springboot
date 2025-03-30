@@ -15,5 +15,8 @@ public class User {
     
     @Schema(description = "Email address of the user", example = "john.doe@example.com")
     private String email;
+    
+    @Schema(description = "Electronic Filing Identification Number (5 characters)", example = "E1234")
+    private String efin;
     // Add other fields as needed based on your users table structure
 } 

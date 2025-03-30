@@ -104,6 +104,22 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
+    @Operation(summary = "Get user by EFIN", description = "Retrieves a user by their EFIN")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PostMapping(
+        path = ApiConstants.UserApi.FIND_BY_EFIN,
+        consumes = ApiConstants.UserApi.CONSUMES,
+        produces = ApiConstants.UserApi.PRODUCES
+    )
+    public ResponseEntity<User> getUserByEfin(@RequestBody Map<String, String> payload) {
+        String efin = payload.get("efin");
+        return ResponseEntity.ok(userService.findByEfin(efin));
+    }
+
     @Operation(summary = "Update a user", description = "Updates a user with the provided information")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User updated successfully"),
@@ -120,10 +136,12 @@ public class UserController {
         BigDecimal id = new BigDecimal(payload.get("id").toString());
         
         User user = new User();
+        user.setId(id);
         user.setUsername((String) payload.get("username"));
         user.setEmail((String) payload.get("email"));
+        user.setEfin((String) payload.get("efin"));
         
-        return ResponseEntity.ok(userService.updateUser(id, user));
+        return ResponseEntity.ok(userService.updateUser(user));
     }
 
     @Operation(summary = "Delete a user", description = "Deletes a user by their ID")

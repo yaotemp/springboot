@@ -8,6 +8,9 @@ public interface UserService {
     List<User> getAllUsers();
     User getUserById(BigDecimal id);
     User createUser(User user);
-    User updateUser(BigDecimal id, User user);
+    User updateUser(User user);
     void deleteUser(BigDecimal id);
+    
+    // Add method to find users by EFIN
+    User findByEfin(String efin);
 } 

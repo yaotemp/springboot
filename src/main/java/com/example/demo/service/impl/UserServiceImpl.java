@@ -62,12 +62,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUser(BigDecimal id, User userDetails) {
+    public User updateUser(User userDetails) {
         try {
-            System.out.println("Updating user with id: " + id);
-            User user = getUserById(id);
+            System.out.println("Updating user with id: " + userDetails.getId());
+            User user = getUserById(userDetails.getId());
             user.setUsername(userDetails.getUsername());
             user.setEmail(userDetails.getEmail());
+            user.setEfin(userDetails.getEfin());
             User updatedUser = userRepository.save(user);
             System.out.println("User updated: " + updatedUser.getUsername());
             return updatedUser;
@@ -89,6 +90,24 @@ public class UserServiceImpl implements UserService {
             System.err.println("Error deleting user: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Error deleting user: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public User findByEfin(String efin) {
+        try {
+            System.out.println("Finding user with EFIN: " + efin);
+            // This is a simplified implementation - in real code you'd implement a repository method for this
+            // For now, find all users and filter the one with matching EFIN
+            List<User> users = getAllUsers();
+            return users.stream()
+                .filter(user -> efin.equals(user.getEfin()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("User not found with EFIN: " + efin));
+        } catch (DataAccessException e) {
+            System.err.println("Error finding user with EFIN " + efin + ": " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Error finding user by EFIN: " + e.getMessage());
         }
     }
 } 

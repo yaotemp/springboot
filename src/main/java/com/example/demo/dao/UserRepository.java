@@ -59,10 +59,11 @@ public class UserRepository {
 
     private User insert(User user) {
         try {
-            String sql = "INSERT INTO users (username, email) VALUES (:username, :email)";
+            String sql = "INSERT INTO users (username, email, efin) VALUES (:username, :email, :efin)";
             SqlParameterSource params = new MapSqlParameterSource()
                     .addValue("username", user.getUsername())
-                    .addValue("email", user.getEmail());
+                    .addValue("email", user.getEmail())
+                    .addValue("efin", user.getEfin());
             System.out.println("Executing SQL: " + sql + " with params: " + params);
             
             KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -88,11 +89,12 @@ public class UserRepository {
 
     private User update(User user) {
         try {
-            String sql = "UPDATE users SET username = :username, email = :email WHERE id = :id";
+            String sql = "UPDATE users SET username = :username, email = :email, efin = :efin WHERE id = :id";
             SqlParameterSource params = new MapSqlParameterSource()
                     .addValue("id", user.getId())
                     .addValue("username", user.getUsername())
-                    .addValue("email", user.getEmail());
+                    .addValue("email", user.getEmail())
+                    .addValue("efin", user.getEfin());
             System.out.println("Executing SQL: " + sql + " with params: " + params);
             
             int affected = jdbcTemplate.update(sql, params);

@@ -13,6 +13,7 @@ public final class ApiConstants {
         public static final String CREATE = "";  // 直接使用基础路径
         public static final String GET_ALL = "/all";
         public static final String FIND_BY_ID = "/find";
+        public static final String FIND_BY_EFIN = "/findByEfin";
         public static final String UPDATE = "/update";
         public static final String DELETE = "/delete";
         public static final String TEST = "/test";
