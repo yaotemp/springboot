@@ -1,12 +1,13 @@
 package com.example.demo.service;
 
 import com.example.demo.model.User;
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface UserService {
     List<User> getAllUsers();
-    User getUserById(Long id);
+    User getUserById(BigDecimal id);
     User createUser(User user);
-    User updateUser(Long id, User user);
-    void deleteUser(Long id);
+    User updateUser(BigDecimal id, User user);
+    void deleteUser(BigDecimal id);
 } 

@@ -8,6 +8,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(Long id) {
+    public User getUserById(BigDecimal id) {
         try {
             System.out.println("Finding user with id: " + id);
             return userRepository.findById(id);
@@ -61,7 +62,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUser(Long id, User userDetails) {
+    public User updateUser(BigDecimal id, User userDetails) {
         try {
             System.out.println("Updating user with id: " + id);
             User user = getUserById(id);
@@ -78,7 +79,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(Long id) {
+    public void deleteUser(BigDecimal id) {
         try {
             System.out.println("Deleting user with id: " + id);
             getUserById(id); // Check if user exists

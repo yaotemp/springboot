@@ -10,6 +10,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class UserRepository {
         }
     }
 
-    public User findById(Long id) {
+    public User findById(BigDecimal id) {
         try {
             String sql = "SELECT * FROM users WHERE id = :id";
             SqlParameterSource params = new MapSqlParameterSource("id", id);
@@ -68,12 +69,15 @@ public class UserRepository {
             jdbcTemplate.update(sql, params, keyHolder);
             
             if (keyHolder.getKey() == null) {
-                Long id = jdbcTemplate.queryForObject(
-                    "SELECT IDENTITY_VAL_LOCAL() FROM SYSIBM.SYSDUMMY1", 
-                    new MapSqlParameterSource(), Long.class);
+                BigDecimal id = jdbcTemplate.queryForObject(
+                    "SELECT DECIMAL(IDENTITY_VAL_LOCAL()) FROM SYSIBM.SYSDUMMY1", 
+                    new MapSqlParameterSource(), BigDecimal.class);
                 user.setId(id);
             } else {
-                user.setId(keyHolder.getKey().longValue());
+                Number key = keyHolder.getKey();
+                if (key != null) {
+                    user.setId(new BigDecimal(key.toString()));
+                }
             }
             return user;
         } catch (Exception e) {
@@ -102,7 +106,7 @@ public class UserRepository {
         }
     }
 
-    public void deleteById(Long id) {
+    public void deleteById(BigDecimal id) {
         try {
             String sql = "DELETE FROM users WHERE id = :id";
             SqlParameterSource params = new MapSqlParameterSource("id", id);

@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,8 +99,8 @@ public class UserController {
         consumes = ApiConstants.UserApi.CONSUMES,
         produces = ApiConstants.UserApi.PRODUCES
     )
-    public ResponseEntity<User> getUserById(@RequestBody Map<String, Long> payload) {
-        Long id = payload.get("id");
+    public ResponseEntity<User> getUserById(@RequestBody Map<String, String> payload) {
+        BigDecimal id = new BigDecimal(payload.get("id"));
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
@@ -116,7 +117,7 @@ public class UserController {
         produces = ApiConstants.UserApi.PRODUCES
     )
     public ResponseEntity<User> updateUser(@RequestBody Map<String, Object> payload) {
-        Long id = Long.valueOf(payload.get("id").toString());
+        BigDecimal id = new BigDecimal(payload.get("id").toString());
         
         User user = new User();
         user.setUsername((String) payload.get("username"));
@@ -136,8 +137,8 @@ public class UserController {
         consumes = ApiConstants.UserApi.CONSUMES,
         produces = ApiConstants.UserApi.PRODUCES
     )
-    public ResponseEntity<Void> deleteUser(@RequestBody Map<String, Long> payload) {
-        Long id = payload.get("id");
+    public ResponseEntity<Void> deleteUser(@RequestBody Map<String, String> payload) {
+        BigDecimal id = new BigDecimal(payload.get("id"));
         userService.deleteUser(id);
         return ResponseEntity.ok().build();
     }
