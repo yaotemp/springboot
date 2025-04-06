@@ -7,13 +7,10 @@ This project demonstrates how to connect and interact with a DB2 database on a M
 - [Project Structure](#project-structure)
 - [Technology Stack](#technology-stack)
 - [Configuration](#configuration)
-- [Database Setup](#database-setup)
 - [API Documentation](#api-documentation)
 - [Development Guide](#development-guide)
-- [Testing](#testing)
 - [Deployment](#deployment)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
+- [API Development Example](#api-development-example)
 
 ## Prerequisites
 
@@ -65,20 +62,6 @@ Replace the following placeholders:
 - `db2pass`: DB2 password
 - `SCHEMA`: DB2 schema name
 
-## Database Setup
-
-The application uses the following table structure:
-
-```sql
-CREATE TABLE users (
-  id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY 
-     (START WITH 1, INCREMENT BY 1, NO CACHE),
-  username VARCHAR(100) NOT NULL,
-  email VARCHAR(100),
-  PRIMARY KEY (id)
-);
-```
-
 ## API Documentation
 
 The application provides the following REST API endpoints:
@@ -116,18 +99,6 @@ Access the Swagger UI at: `http://localhost:8080/swagger-ui.html`
 - Document public methods and classes
 - Follow REST API best practices
 
-## Testing
-
-Run tests using:
-```bash
-mvn test
-```
-
-The project includes:
-- Unit tests for services and controllers
-- Integration tests for database operations
-- API tests using MockMvc
-
 ## Deployment
 
 1. Build the application:
@@ -140,35 +111,174 @@ mvn clean package
 java -jar target/demo-0.0.1-SNAPSHOT.jar
 ```
 
-## Troubleshooting
+## API Development Example
 
-Common issues and solutions:
+This section provides a simple example of how to create a GET query API endpoint.
 
-1. **Connection Issues**
-   - Verify network connectivity to Mainframe
-   - Check firewall settings
-   - Validate credentials
-   - Use the test endpoint to verify connection
+### Create Model Class
 
-2. **Performance Issues**
-   - Check connection pool settings
-   - Optimize SQL queries
-   - Monitor Mainframe resource usage
+Create a model class in `src/main/java/com/example/demo/model/Employee.java`:
 
-3. **Character Encoding Issues**
-   - Verify EBCDIC encoding settings
-   - Check database character set configuration
+```java
+package com.example.demo.model;
 
-## Contributing
+import lombok.Data;
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+@Data
+public class Employee {
+    private String empId;
+    private String name;
+    private String department;
+    private String position;
+}
+```
 
-## References
+### Create DAO Interface
 
-- [Spring Boot Documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/)
-- [IBM DB2 JDBC Driver Documentation](https://www.ibm.com/docs/en/db2/11.5?topic=connectivity-java-jdbc-driver-type-4)
-- [Spring JDBC Documentation](https://docs.spring.io/spring-framework/docs/current/reference/html/data-access.html#jdbc) 
+Create a DAO interface in `src/main/java/com/example/demo/dao/EmployeeDao.java`:
+
+```java
+package com.example.demo.dao;
+
+import com.example.demo.model.Employee;
+import java.util.List;
+import java.util.Map;
+
+public interface EmployeeDao {
+    List<Employee> findByDepartment(String department);
+}
+```
+
+### Implement DAO
+
+Create implementation in `src/main/java/com/example/demo/dao/EmployeeDaoImpl.java`:
+
+```java
+package com.example.demo.dao;
+
+import com.example.demo.model.Employee;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Repository
+public class EmployeeDaoImpl implements EmployeeDao {
+    private final NamedParameterJdbcTemplate jdbcTemplate;
+
+    public EmployeeDaoImpl(NamedParameterJdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    @Override
+    public List<Employee> findByDepartment(String department) {
+        String sql = "SELECT emp_id, name, department, position " +
+                    "FROM employees " +
+                    "WHERE department = :department";
+        
+        Map<String, Object> params = new HashMap<>();
+        params.put("department", department);
+        
+        return jdbcTemplate.query(sql, params, (rs, rowNum) -> {
+            Employee employee = new Employee();
+            employee.setEmpId(rs.getString("emp_id"));
+            employee.setName(rs.getString("name"));
+            employee.setDepartment(rs.getString("department"));
+            employee.setPosition(rs.getString("position"));
+            return employee;
+        });
+    }
+}
+```
+
+### Create Service
+
+Create a service class in `src/main/java/com/example/demo/service/EmployeeService.java`:
+
+```java
+package com.example.demo.service;
+
+import com.example.demo.dao.EmployeeDao;
+import com.example.demo.model.Employee;
+import org.springframework.stereotype.Service;
+import java.util.List;
+
+@Service
+public class EmployeeService {
+    private final EmployeeDao employeeDao;
+
+    public EmployeeService(EmployeeDao employeeDao) {
+        this.employeeDao = employeeDao;
+    }
+
+    public List<Employee> getEmployeesByDepartment(String department) {
+        return employeeDao.findByDepartment(department);
+    }
+}
+```
+
+### Create Controller
+
+Create a controller class in `src/main/java/com/example/demo/controller/EmployeeController.java`:
+
+```java
+package com.example.demo.controller;
+
+import com.example.demo.model.Employee;
+import com.example.demo.service.EmployeeService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/employees")
+public class EmployeeController {
+    private final EmployeeService employeeService;
+
+    public EmployeeController(EmployeeService employeeService) {
+        this.employeeService = employeeService;
+    }
+
+    @GetMapping("/department/{department}")
+    public ResponseEntity<List<Employee>> getEmployeesByDepartment(
+            @PathVariable String department) {
+        return ResponseEntity.ok(employeeService.getEmployeesByDepartment(department));
+    }
+}
+```
+
+### Test the API
+
+You can test the API using the following curl command:
+
+```bash
+# Get employees by department
+curl -X GET "http://localhost:8080/api/employees/department/IT"
+```
+
+The response will be in JSON format:
+
+```json
+[
+    {
+        "empId": "E001",
+        "name": "John Doe",
+        "department": "IT",
+        "position": "Developer"
+    },
+    {
+        "empId": "E002",
+        "name": "Jane Smith",
+        "department": "IT",
+        "position": "Analyst"
+    }
+]
+```
+
+### API Documentation
+
+The API endpoint will be automatically documented in Swagger UI at:
+`http://localhost:8080/swagger-ui.html` 
