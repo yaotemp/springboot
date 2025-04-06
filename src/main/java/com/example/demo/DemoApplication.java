@@ -5,6 +5,7 @@ import com.example.demo.service.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 
 import javax.sql.DataSource;
@@ -33,7 +34,8 @@ public class DemoApplication {
         };
     }
     
-  
+    @Bean
+    @ConditionalOnProperty(name = "app.load-test-data", havingValue = "true", matchIfMissing = false)
     public CommandLineRunner loadTestData(UserService userService) {
         return args -> {
             System.out.println("Creating test data...");
